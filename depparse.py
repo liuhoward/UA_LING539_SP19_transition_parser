@@ -60,7 +60,7 @@ def read_conllu(path: Text) -> Iterator[Sequence[Dep]]:
                 print('error: {}'.format(line))
                 sentence = list()
                 continue
-            new_Dep = Dep(id=parts[0] if parts[0] is not '_' else None,
+            new_dep = Dep(id=parts[0] if parts[0] is not '_' else None,
                           form=parts[1] if parts[1] is not '_' else None,
                           lemma=parts[2] if parts[2] is not '_' else None,
                           upos=parts[3] if parts[3] is not '_' else None,
@@ -71,7 +71,7 @@ def read_conllu(path: Text) -> Iterator[Sequence[Dep]]:
                           deps=[x.strip() for x in parts[8].split('|')] if parts[8] is not '_' else [],
                           misc=parts[9] if parts[9] is not '_' else None
                           )
-            sentence.append(new_Dep)
+            sentence.append(new_dep)
 
 
 class Action(Enum):
