@@ -38,6 +38,41 @@ def read_conllu(path: Text) -> Iterator[Sequence[Dep]]:
     words, and each word is represented by a Dep object.
     """
 
+    with open(path, 'r') as fp:
+        sentence = list()
+        for line in fp:
+            # remove \n
+            line = line.strip()
+
+            # empty line, process previous sentence
+            if len(line) == 0:
+                if len(sentence) > 0:
+                    yield sentence
+                    sentence = list()
+                continue
+            elif line.startswith('#'):
+                continue
+
+            # split, append token & tag
+            parts = line.split('\t')
+            # wrong line
+            if len(parts) != 10:
+                print('error: {}'.format(line))
+                sentence = list()
+                continue
+            new_Dep = Dep(id=parts[0] if parts[0] is not '_' else None,
+                          form=parts[1] if parts[1] is not '_' else None,
+                          lemma=parts[2] if parts[2] is not '_' else None,
+                          upos=parts[3] if parts[3] is not '_' else None,
+                          xpos=parts[4] if parts[4] is not '_' else None,
+                          feats=[x.strip() for x in parts[5].split('|')] if parts[5] is not '_' else [],
+                          head=parts[6] if parts[6] is not '_' else None,
+                          deprel=parts[7] if parts[7] is not '_' else None,
+                          deps=[x.strip() for x in parts[8].split('|')] if parts[8] is not '_' else [],
+                          misc=parts[9] if parts[9] is not '_' else None
+                          )
+            sentence.append(new_Dep)
+
 
 class Action(Enum):
     """An action in an "arc standard" transition-based parser."""
