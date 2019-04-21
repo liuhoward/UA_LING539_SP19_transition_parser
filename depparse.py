@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from collections import deque
 from typing import Callable, Iterator, Sequence, Text, Union
+from sklearn.linear_model import LogisticRegression
+from sklearn.feature_extraction import DictVectorizer
 
 
 @dataclass()
@@ -157,15 +159,15 @@ class Oracle:
         :param deps: The sentence, a sequence of Dep objects, each representing
         one of the words in the sentence.
         """
-        # save dependent counts for each id
-        self.dependents_count = dict()
+        # save dependent counts for each id, init
+        self.dependents_count = {dep.id: 0 for dep in deps}
+        self.dependents_count['0'] = 0
         for dep in deps:
-            if dep.head not in self.dependents_count.keys():
-                self.dependents_count[dep.head] = 1
-            else:
-                self.dependents_count[dep.head] += 1
+            self.dependents_count[dep.head] += 1
         # init actions to save all actions
         self.actions = list()
+        # save features
+        self.features = list()
 
     def __call__(self, stack: Sequence[Dep], queue: Sequence[Dep]) -> Action:
         """Returns the Oracle action for the given "arc standard" parser state.
@@ -202,7 +204,7 @@ class Oracle:
                 action = Action.LEFT_ARC
                 self.dependents_count[stack[-1].id] -= 1
             # if top's dependents have not been processed completely, shift instead of right arc
-            elif stack[-1].id in self.dependents_count.keys() and self.dependents_count[stack[-1].id] > 0:
+            elif self.dependents_count.keys() and self.dependents_count[stack[-1].id] > 0:
                 action = Action.SHIFT
             # if the top of the stack is the depend of the word just below the top
             elif stack[-1].head == stack[-2].id:
@@ -234,6 +236,9 @@ class Classifier:
         :param parses: An iterator over sentences, where each sentence is a
         sequence of words, and each word is represented by a Dep object.
         """
+
+        # logistic regression classifier
+        self.classifier = LogisticRegression(random_state=0, solver='lbfgs', max_iter=150, multi_class='auto')
 
     def __call__(self, stack: Sequence[Dep], queue: Sequence[Dep]) -> Action:
         """Predicts an action for the given "arc standard" parser state.
