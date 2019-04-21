@@ -131,7 +131,7 @@ def parse(deps: Sequence[Dep],
             stack[-1].head = stack[-2].id
             stack.pop()
 
-    # process the last work in the stack, set as root
+    # process the last word in the stack, set as root
     dep = stack.pop()
     dep.head = '0'
 
@@ -150,6 +150,8 @@ class Oracle:
         :param deps: The sentence, a sequence of Dep objects, each representing
         one of the words in the sentence.
         """
+        # init actions to save all actions
+        self.actions = list()
 
     def __call__(self, stack: Sequence[Dep], queue: Sequence[Dep]) -> Action:
         """Returns the Oracle action for the given "arc standard" parser state.
@@ -177,6 +179,20 @@ class Oracle:
         :return: The action that should be taken given the reference parse
         (the `.head` fields of the Dep objects).
         """
+        # default action is shift
+        action = Action.SHIFT
+        # if stack is greater than 2
+        if len(stack) >= 2:
+            # if the top of the stack is the head of the word just below the top
+            if stack[-2].head == stack[-1].id:
+                action = Action.LEFT_ARC
+            # if the top of the stack is the depend of the word just below the top
+            elif stack[-1].head == stack[-2].id:
+                action = Action.RIGHT_ARC
+
+        self.actions.append(action)
+
+        return action
 
 
 class Classifier:
