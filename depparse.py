@@ -114,14 +114,21 @@ def parse(deps: Sequence[Dep],
     # init stack
     stack = list()
 
+    wrong_shift_count = 0
     # while loop to get action and parse the sentence
     while len(stack) > 1 or len(queue) > 0:
         # get action
         action = get_action(stack, queue)
         # shift the first word of queue to the stack
         if action == Action.SHIFT:
-            dep = queue.popleft()
-            stack.append(dep)
+            if len(queue) > 0:
+                dep = queue.popleft()
+                stack.append(dep)
+            # invalid action
+            else:
+                wrong_shift_count += 1
+                if wrong_shift_count >= len(deps):
+                    break
         # left arc
         elif action == Action.LEFT_ARC:
             stack[-2].head = stack[-1].id
@@ -150,6 +157,13 @@ class Oracle:
         :param deps: The sentence, a sequence of Dep objects, each representing
         one of the words in the sentence.
         """
+        # save dependent counts for each id
+        self.dependents_count = dict()
+        for dep in deps:
+            if dep.head not in self.dependents_count.keys():
+                self.dependents_count[dep.head] = 1
+            else:
+                self.dependents_count[dep.head] += 1
         # init actions to save all actions
         self.actions = list()
 
@@ -186,9 +200,14 @@ class Oracle:
             # if the top of the stack is the head of the word just below the top
             if stack[-2].head == stack[-1].id:
                 action = Action.LEFT_ARC
+                self.dependents_count[stack[-1].id] -= 1
+            # if top's dependents have not been processed completely, shift instead of right arc
+            elif stack[-1].id in self.dependents_count.keys() and self.dependents_count[stack[-1].id] > 0:
+                action = Action.SHIFT
             # if the top of the stack is the depend of the word just below the top
             elif stack[-1].head == stack[-2].id:
                 action = Action.RIGHT_ARC
+                self.dependents_count[stack[-2].id] -= 1
 
         self.actions.append(action)
 
