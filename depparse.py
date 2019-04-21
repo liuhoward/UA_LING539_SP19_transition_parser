@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from collections import deque
 from typing import Callable, Iterator, Sequence, Text, Union
 
 
@@ -108,6 +109,31 @@ def parse(deps: Sequence[Dep],
     current stack and queue as input, and returns an "arc standard" action.
     :return: Nothing; the `.head` fields of the input Dep objects are modified.
     """
+    # init queue with given deps
+    queue = deque(deps)
+    # init stack
+    stack = list()
+
+    # while loop to get action and parse the sentence
+    while len(stack) > 1 or len(queue) > 0:
+        # get action
+        action = get_action(stack, queue)
+        # shift the first word of queue to the stack
+        if action == Action.SHIFT:
+            dep = queue.popleft()
+            stack.append(dep)
+        # left arc
+        elif action == Action.LEFT_ARC:
+            stack[-2].head = stack[-1].id
+            stack.pop(-2)
+        # right arc
+        elif action == Action.RIGHT_ARC:
+            stack[-1].head = stack[-2].id
+            stack.pop()
+
+    # process the last work in the stack, set as root
+    dep = stack.pop()
+    dep.head = '0'
 
 
 class Oracle:
