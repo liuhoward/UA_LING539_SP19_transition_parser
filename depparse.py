@@ -4,6 +4,7 @@ from collections import deque
 from typing import Callable, Iterator, Sequence, Text, Union
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.preprocessing import LabelEncoder
 
 
 @dataclass()
@@ -145,6 +146,27 @@ def parse(deps: Sequence[Dep],
     dep.head = '0'
 
 
+def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
+
+    feature_row = dict()
+    feature_row['stack_1_upos'] = stack[-1].upos if len(stack) >= 1 and stack[-1].upos is not None else 'NONE'
+    # feature_row['stack_1_xpos'] = stack[-1].xpos if len(stack) >= 1 and stack[-1].xpos is not None else 'NONE'
+    feature_row['stack_2_upos'] = stack[-2].upos if len(stack) >= 2 and stack[-2].upos is not None else 'NONE'
+    # feature_row['stack_2_xpos'] = stack[-2].xpos if len(stack) >= 2 and stack[-2].xpos is not None else 'NONE'
+    feature_row['queue_1_upos'] = queue[0].upos if len(queue) >= 2 and queue[0].upos is not None else 'NONE'
+    # feature_row['dep_count'] = -1
+    # if len(stack) > 0:
+    #    feature_row['dep_count'] = 1 if self.dependents_count[stack[-1].id] > 0 else 0
+    feature_row['stack_relation'] = 0
+    if len(stack) >= 2:
+        if stack[-2].head == stack[-1].id:
+            feature_row['stack_relation'] = -1
+        elif stack[-1].head == stack[-2].id:
+            feature_row['stack_relation'] = 1
+
+    return feature_row
+
+
 class Oracle:
     def __init__(self, deps: Sequence[Dep]):
         """Initializes an Oracle to be used for the given sentence.
@@ -163,6 +185,8 @@ class Oracle:
         self.dependents_count = {dep.id: 0 for dep in deps}
         self.dependents_count['0'] = 0
         for dep in deps:
+            if dep.head is None:
+                continue
             self.dependents_count[dep.head] += 1
         # init actions to save all actions
         self.actions = list()
@@ -211,7 +235,12 @@ class Oracle:
                 action = Action.RIGHT_ARC
                 self.dependents_count[stack[-2].id] -= 1
 
+        # save action
         self.actions.append(action)
+
+        # get features:
+        feature_row = get_feature_row(stack, queue)
+        self.features.append(feature_row)
 
         return action
 
@@ -237,8 +266,30 @@ class Classifier:
         sequence of words, and each word is represented by a Dep object.
         """
 
+        transition_features = list()
+        transition_labels = list()
+        for sentence in parses:
+            oracle = Oracle(sentence)
+            parse(sentence, oracle)
+            transition_features.extend(oracle.features)
+            transition_labels.extend(oracle.actions)
+
+        # used to map features into array
+        self.dict_vectorizer = DictVectorizer(sparse=True)
+        # convert features to numpy array
+        feature_matrix = self.dict_vectorizer.fit_transform(transition_features)
+
+        # used to convert label names into array
+        self.label_encoder = LabelEncoder()
+
+        # convert label into array
+        label_vector = [action.value - 1 for action in transition_labels]
+
         # logistic regression classifier
         self.classifier = LogisticRegression(random_state=0, solver='lbfgs', max_iter=150, multi_class='auto')
+
+        # train model
+        self.classifier.fit(X=feature_matrix, y=label_vector)
 
     def __call__(self, stack: Sequence[Dep], queue: Sequence[Dep]) -> Action:
         """Predicts an action for the given "arc standard" parser state.
@@ -252,4 +303,14 @@ class Classifier:
         :param queue: The queue of the "arc standard" transition-based parser.
         :return: The action that should be taken.
         """
+
+        feature_row = get_feature_row(stack, queue)
+        # convert features to numpy array
+        feature_matrix = self.dict_vectorizer.transform(feature_row)
+
+        pred_action_idx = self.classifier.predict(feature_matrix)
+        #pred_action = self.label_encoder.inverse_transform(pred_action_idx)[0]
+        pred_action = Action(pred_action_idx + 1)
+
+        return pred_action
 
