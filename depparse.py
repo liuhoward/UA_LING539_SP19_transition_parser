@@ -163,11 +163,11 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         except ValueError:
             pass
         try:
-            feature_row[f'stack_1_lemma={stack[-1].lemma.lower()}'] = 1
+            feature_row[f'stack_1_lemma={stack[-1].lemma}'] = 1
         except ValueError:
             pass
         try:
-            feature_row[f'stack_1_form={stack[-1].form.lower()}'] = 1
+            feature_row[f'stack_1_form={stack[-1].form}'] = 1
         except ValueError:
             pass
 
@@ -181,11 +181,11 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         except ValueError:
             pass
         try:
-            feature_row[f'stack_2_lemma={stack[-2].lemma.lower()}'] = 1
+            feature_row[f'stack_2_lemma={stack[-2].lemma}'] = 1
         except ValueError:
             pass
         try:
-            feature_row[f'stack_2_form={stack[-2].form.lower()}'] = 1
+            feature_row[f'stack_2_form={stack[-2].form}'] = 1
         except ValueError:
             pass
         feature_row[f'stack_left'] = 1 if stack[-2].head == stack[-1].id else 0
@@ -201,11 +201,11 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         except ValueError:
             pass
         try:
-            feature_row[f'stack_3_lemma={stack[-3].lemma.lower()}'] = 1
+            feature_row[f'stack_3_lemma={stack[-3].lemma}'] = 1
         except ValueError:
             pass
         try:
-            feature_row[f'stack_3_form={stack[-3].form.lower()}'] = 1
+            feature_row[f'stack_3_form={stack[-3].form}'] = 1
         except ValueError:
             pass
 
@@ -219,11 +219,11 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         except ValueError:
             pass
         try:
-            feature_row[f'queue_1_lemma={queue[0].lemma.lower()}'] = 1
+            feature_row[f'queue_1_lemma={queue[0].lemma}'] = 1
         except ValueError:
             pass
         try:
-            feature_row[f'queue_1_form={queue[0].form.lower()}'] = 1
+            feature_row[f'queue_1_form={queue[0].form}'] = 1
         except ValueError:
             pass
 
