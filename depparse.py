@@ -120,7 +120,12 @@ def parse(deps: Sequence[Dep],
     # while loop to get action and parse the sentence
     while len(stack) > 1 or len(queue) > 0:
         # get action
-        action = get_action(stack, queue)
+        try:
+            action = get_action(stack, queue)
+        except ValueError:
+            break
+        if action == -1:
+            break
         # shift the first word of queue to the stack
         if action == Action.SHIFT:
             if len(queue) > 0:
