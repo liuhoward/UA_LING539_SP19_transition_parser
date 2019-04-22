@@ -157,13 +157,13 @@ def parse(deps: Sequence[Dep],
         # left arc
         if action == Action.LEFT_ARC:
             if len(stack) < 2:
-                continue
+                break
             stack[-2].head = stack[-1].id
             stack.pop(-2)
         # right arc
         elif action == Action.RIGHT_ARC:
             if len(stack) < 2:
-                continue
+                break
             stack[-1].head = stack[-2].id
             stack.pop()
 
