@@ -117,7 +117,6 @@ def parse(deps: Sequence[Dep],
     # init stack
     stack = list()
 
-    wrong_shift_count = 0
     # while loop to get action and parse the sentence
     while len(stack) > 1 or len(queue) > 0:
         # get action
@@ -129,11 +128,9 @@ def parse(deps: Sequence[Dep],
                 stack.append(dep)
             # invalid action
             else:
-                wrong_shift_count += 1
-                if wrong_shift_count >= len(deps):
-                    break
+                action = Action.RIGHT_ARC
         # left arc
-        elif action == Action.LEFT_ARC:
+        if action == Action.LEFT_ARC:
             if len(stack) < 2:
                 continue
             stack[-2].head = stack[-1].id
@@ -144,6 +141,11 @@ def parse(deps: Sequence[Dep],
                 continue
             stack[-1].head = stack[-2].id
             stack.pop()
+
+    # process stack
+    while len(stack) >= 2:
+        dep = stack.pop()
+        dep.head = stack[-1].head
 
     # process the last word in the stack, set as root
     dep = stack.pop()
