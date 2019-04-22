@@ -122,16 +122,14 @@ def parse(deps: Sequence[Dep],
         # get action
         try:
             action = get_action(stack, queue)
-        except ValueError:
-            break
-        if action == -1:
+        except Exception:
             break
         # shift the first word of queue to the stack
         if action == Action.SHIFT:
             if len(queue) > 0:
                 dep = queue.popleft()
                 stack.append(dep)
-            # invalid action
+            # invalid action, use right_arc
             else:
                 action = Action.RIGHT_ARC
         # left arc
@@ -163,37 +161,37 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
     if len(stack) >= 1:
         try:
             feature_row[f'stack_1_upos={stack[-1].upos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_1_xpos={stack[-1].xpos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_1_lemma={stack[-1].lemma}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_1_form={stack[-1].form}'] = 1
-        except ValueError:
+        except Exception:
             pass
 
     if len(stack) >= 2:
         try:
             feature_row[f'stack_2_upos={stack[-2].upos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_2_xpos={stack[-2].xpos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_2_lemma={stack[-2].lemma}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_2_form={stack[-2].form}'] = 1
-        except ValueError:
+        except Exception:
             pass
         feature_row[f'stack_left'] = 1 if stack[-2].head == stack[-1].id else 0
         feature_row['stack_right'] = 1 if stack[-1].head == stack[-2].id else 0
@@ -201,37 +199,37 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
     if len(stack) >= 3:
         try:
             feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_3_xpos={stack[-3].xpos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_3_lemma={stack[-3].lemma}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'stack_3_form={stack[-3].form}'] = 1
-        except ValueError:
+        except Exception:
             pass
 
     if len(queue) >= 1:
         try:
             feature_row[f'queue_1_upos={queue[0].upos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'queue_1_xpos={queue[0].xpos}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'queue_1_lemma={queue[0].lemma}'] = 1
-        except ValueError:
+        except Exception:
             pass
         try:
             feature_row[f'queue_1_form={queue[0].form}'] = 1
-        except ValueError:
+        except Exception:
             pass
 
     feature_row['stack_size'] = len(stack)
@@ -254,13 +252,12 @@ class Oracle:
         :param deps: The sentence, a sequence of Dep objects, each representing
         one of the words in the sentence.
         """
-        # save dependent counts for each id, init
-        self.dependents_count = {dep.id: 0 for dep in deps}
-        self.dependents_count['0'] = 0
+        self.relations = set()
+
         for dep in deps:
             if dep.head is None:
                 continue
-            self.dependents_count[dep.head] += 1
+            self.relations.add((dep.head, dep.id))
         # init actions to save all actions
         self.actions = list()
         # save features
@@ -297,16 +294,20 @@ class Oracle:
         # if stack is greater than 2
         if len(stack) >= 2:
             # if the top of the stack is the head of the word just below the top
-            if stack[-2].head == stack[-1].id:
+            if (stack[-1].id, stack[-2].id) in self.relations:
                 action = Action.LEFT_ARC
-                self.dependents_count[stack[-1].id] -= 1
-            # if top's dependents have not been processed completely, shift instead of right arc
-            elif self.dependents_count[stack[-1].id] > 0:
-                action = Action.SHIFT
-            # if the top of the stack is the depend of the word just below the top
-            elif stack[-1].head == stack[-2].id:
-                action = Action.RIGHT_ARC
-                self.dependents_count[stack[-2].id] -= 1
+                self.relations.remove((stack[-1].id, stack[-2].id))
+            else:
+                # if top's dependents have not been processed completely, shift instead of right arc
+                stack_top_is_head = False
+                for dep_head, _ in self.relations:
+                    if dep_head == stack[-1].id:
+                        stack_top_is_head = True
+                        break
+                # if the top of the stack is the depend of the word just below the top
+                if not stack_top_is_head and (stack[-2].id, stack[-1].id) in self.relations:
+                    action = Action.RIGHT_ARC
+                    self.relations.remove((stack[-2].id, stack[-1].id))
 
         # save action
         self.actions.append(action)
