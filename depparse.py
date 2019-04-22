@@ -157,11 +157,13 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row['stack_1_upos'] = stack[-1].upos if stack[-1].upos is not None else 'UKN'
         feature_row['stack_1_xpos'] = stack[-1].xpos if stack[-1].xpos is not None else 'UKN'
         feature_row['stack_1_lemma'] = stack[-1].lemma.lower() if stack[-1].lemma is not None else 'UKN'
+        feature_row['stack_1_form'] = stack[-1].form.lower() if stack[-1].form is not None else 'UKN'
 
     if len(stack) >= 2:
         feature_row['stack_2_upos'] = stack[-2].upos if stack[-2].upos is not None else 'UKN'
         feature_row['stack_2_xpos'] = stack[-2].xpos if stack[-2].xpos is not None else 'UKN'
         feature_row['stack_2_lemma'] = stack[-2].lemma.lower() if stack[-2].lemma is not None else 'UKN'
+        feature_row['stack_2_form'] = stack[-2].form.lower() if stack[-2].form is not None else 'UKN'
 
         feature_row['stack_left'] = 1 if stack[-2].head == stack[-1].id else 0
         feature_row['stack_right'] = 1 if stack[-1].head == stack[-2].id else 0
@@ -170,10 +172,12 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row['stack_3_upos'] = stack[-3].upos if stack[-3].upos is not None else 'UKN'
         feature_row['stack_3_xpos'] = stack[-3].xpos if stack[-3].xpos is not None else 'UKN'
         feature_row['stack_3_lemma'] = stack[-3].lemma.lower() if stack[-3].lemma is not None else 'UKN'
+        feature_row['stack_3_form'] = stack[-3].form.lower() if stack[-3].form is not None else 'UKN'
 
     if len(queue) >= 1:
         feature_row['queue_1_upos'] = queue[0].upos if queue[0].upos is not None else 'UKN'
         feature_row['queue_1_lemma'] = queue[0].lemma.lower() if queue[0].lemma is not None else 'UKN'
+        feature_row['queue_1_form'] = queue[0].form.lower() if queue[0].form is not None else 'UKN'
 
     feature_row['stack_size'] = len(stack)
     feature_row['queue_size'] = len(queue)
