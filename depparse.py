@@ -113,7 +113,14 @@ def parse(deps: Sequence[Dep],
     :return: Nothing; the `.head` fields of the input Dep objects are modified.
     """
     # init queue with given deps
-    queue = deque(deps)
+
+    queue = deque()
+    for dep in deps:
+        try:
+            int(dep.id)
+        except:
+            continue
+        queue.append(dep)
     # init stack
     stack = list()
 
@@ -148,11 +155,12 @@ def parse(deps: Sequence[Dep],
     # process stack
     while len(stack) >= 2:
         dep = stack.pop()
-        dep.head = stack[-1].head
+        dep.head = stack[-1].id
 
     # process the last word in the stack, set as root
-    dep = stack.pop()
-    dep.head = '0'
+    if len(stack) == 1:
+        dep = stack.pop()
+        dep.head = '0'
 
 
 def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
@@ -161,37 +169,37 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
     if len(stack) >= 1:
         try:
             feature_row[f'stack_1_upos={stack[-1].upos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_1_xpos={stack[-1].xpos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_1_lemma={stack[-1].lemma}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_1_form={stack[-1].form}'] = 1
-        except Exception:
+        except:
             pass
 
     if len(stack) >= 2:
         try:
             feature_row[f'stack_2_upos={stack[-2].upos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_2_xpos={stack[-2].xpos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_2_lemma={stack[-2].lemma}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_2_form={stack[-2].form}'] = 1
-        except Exception:
+        except:
             pass
         feature_row[f'stack_left'] = 1 if stack[-2].head == stack[-1].id else 0
         feature_row['stack_right'] = 1 if stack[-1].head == stack[-2].id else 0
@@ -199,37 +207,37 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
     if len(stack) >= 3:
         try:
             feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_3_xpos={stack[-3].xpos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_3_lemma={stack[-3].lemma}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'stack_3_form={stack[-3].form}'] = 1
-        except Exception:
+        except:
             pass
 
     if len(queue) >= 1:
         try:
             feature_row[f'queue_1_upos={queue[0].upos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'queue_1_xpos={queue[0].xpos}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'queue_1_lemma={queue[0].lemma}'] = 1
-        except Exception:
+        except:
             pass
         try:
             feature_row[f'queue_1_form={queue[0].form}'] = 1
-        except Exception:
+        except:
             pass
 
     feature_row['stack_size'] = len(stack)
