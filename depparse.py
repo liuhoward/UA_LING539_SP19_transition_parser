@@ -64,16 +64,31 @@ def read_conllu(path: Text) -> Iterator[Sequence[Dep]]:
                 print('error: {}'.format(line))
                 sentence = list()
                 continue
-            new_dep = Dep(id=parts[0] if parts[0] is not '_' else None,
-                          form=parts[1] if parts[1] is not '_' else None,
-                          lemma=parts[2] if parts[2] is not '_' else None,
-                          upos=parts[3] if parts[3] is not '_' else None,
-                          xpos=parts[4] if parts[4] is not '_' else None,
-                          feats=[x.strip() for x in parts[5].split('|')] if parts[5] is not '_' else [],
-                          head=parts[6] if parts[6] is not '_' else None,
-                          deprel=parts[7] if parts[7] is not '_' else None,
-                          deps=[x.strip() for x in parts[8].split('|')] if parts[8] is not '_' else [],
-                          misc=parts[9] if parts[9] is not '_' else None
+            dep_id = parts[0] if parts[0] is not '_' else None
+            # special case for _
+            if parts[3] == 'SYM' and parts[1] == '_' and parts[2] == '_':
+                form = '_'
+                lemma = '_'
+            else:
+                form = parts[1] if parts[1] is not '_' else None
+                lemma = parts[2] if parts[2] is not '_' else None
+            upos = parts[3] if parts[3] is not '_' else None
+            xpos = parts[4] if parts[4] is not '_' else None
+            feats = [x.strip() for x in parts[5].split('|')] if parts[5] is not '_' else []
+            head = parts[6] if parts[6] is not '_' else None
+            deprel = parts[7] if parts[7] is not '_' else None
+            deps = [x.strip() for x in parts[8].split('|')] if parts[8] is not '_' else []
+            misc = parts[9] if parts[9] is not '_' else None
+            new_dep = Dep(dep_id,
+                          form,
+                          lemma,
+                          upos,
+                          xpos,
+                          feats,
+                          head,
+                          deprel,
+                          deps,
+                          misc,
                           )
             sentence.append(new_dep)
 
