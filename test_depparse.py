@@ -239,5 +239,3 @@ def clear_heads(deps: Sequence[Dep]):
         dep.deprel = None
         dep.deps = None
     return heads
-
-#test_accuracy
