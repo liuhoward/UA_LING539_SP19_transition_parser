@@ -149,23 +149,25 @@ def parse(deps: Sequence[Dep],
 def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
 
     feature_row = dict()
-    feature_row['stack_1_upos'] = stack[-1].upos if len(stack) >= 1 and stack[-1].upos is not None else 'UKN'
-    #feature_row['stack_1_xpos'] = stack[-1].xpos if len(stack) >= 1 and stack[-1].xpos is not None else 'UKN'
-    feature_row['stack_2_upos'] = stack[-2].upos if len(stack) >= 2 and stack[-2].upos is not None else 'UKN'
-    #feature_row['stack_2_xpos'] = stack[-2].xpos if len(stack) >= 2 and stack[-2].xpos is not None else 'UKN'
-    feature_row['queue_1_upos'] = queue[0].upos if len(queue) >= 1 and queue[0].upos is not None else 'UKN'
-    # feature_row['dep_count'] = -1
-    # if len(stack) > 0:
-    #    feature_row['dep_count'] = 1 if self.dependents_count[stack[-1].id] > 0 else 0
-    feature_row['stack_left'] = 0
-    feature_row['stack_right'] = 0
+    if len(stack) >= 1:
+        feature_row['stack_1_upos'] = stack[-1].upos if stack[-1].upos is not None else 'UKN'
+        feature_row['stack_1_xpos'] = stack[-1].xpos if stack[-1].xpos is not None else 'UKN'
+        feature_row['stack_1_lemma'] = stack[-1].lemma.lower() if stack[-1].lemma is not None else 'UKN'
+
     if len(stack) >= 2:
-        if stack[-2].head == stack[-1].id:
-            feature_row['stack_left'] = 1
-        if stack[-1].head == stack[-2].id:
-            feature_row['stack_right'] = 1
-    #feature_row['stack_size'] = len(stack)
-    #feature_row['queue_size'] = len(queue)
+        feature_row['stack_2_upos'] = stack[-2].upos if stack[-2].upos is not None else 'UKN'
+        feature_row['stack_2_xpos'] = stack[-2].xpos if stack[-2].xpos is not None else 'UKN'
+        feature_row['stack_2_lemma'] = stack[-2].lemma.lower() if stack[-2].lemma is not None else 'UKN'
+
+        feature_row['stack_left'] = 1 if stack[-2].head == stack[-1].id else 0
+        feature_row['stack_right'] = 1 if stack[-1].head == stack[-2].id else 0
+
+    if len(queue) >= 1:
+        feature_row['queue_1_upos'] = queue[0].upos if queue[0].upos is not None else 'UKN'
+        feature_row['queue_1_lemma'] = queue[0].lemma.lower() if queue[0].lemma is not None else 'UKN'
+
+    feature_row['stack_size'] = len(stack)
+    feature_row['queue_size'] = len(queue)
 
     return feature_row
 
@@ -289,7 +291,7 @@ class Classifier:
         label_vector = self.label_encoder.fit_transform([action.value for action in transition_labels])
 
         # logistic regression classifier
-        self.classifier = LogisticRegression(random_state=0, solver='lbfgs', class_weight='balanced', max_iter=500)
+        self.classifier = LogisticRegression(random_state=0, solver='lbfgs', class_weight='balanced', max_iter=500, multi_class='multinomial')
 
         # train model
         self.classifier.fit(X=feature_matrix, y=label_vector)
