@@ -283,10 +283,10 @@ class Classifier:
         self.label_encoder = LabelEncoder()
 
         # convert label into array
-        label_vector = [action.value - 1 for action in transition_labels]
+        label_vector = self.label_encoder.fit_transform([action.value for action in transition_labels])
 
         # logistic regression classifier
-        self.classifier = LogisticRegression(random_state=0, solver='lbfgs', max_iter=150, multi_class='auto')
+        self.classifier = LogisticRegression(random_state=0, solver='sag', max_iter=300, multi_class='auto')
 
         # train model
         self.classifier.fit(X=feature_matrix, y=label_vector)
@@ -309,8 +309,8 @@ class Classifier:
         feature_matrix = self.dict_vectorizer.transform(feature_row)
 
         pred_action_idx = self.classifier.predict(feature_matrix)
-        #pred_action = self.label_encoder.inverse_transform(pred_action_idx)[0]
-        pred_action = Action(pred_action_idx + 1)
+        pred_action_value = self.label_encoder.inverse_transform(pred_action_idx)[0]
+        pred_action = Action(pred_action_value)
 
         return pred_action
 
