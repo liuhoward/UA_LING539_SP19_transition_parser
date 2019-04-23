@@ -205,7 +205,7 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row[f'stack_2_lemma_upos={stack[-2].lemma.lower() + stack[-2].upos}'] = 1
 
         feature_row[f'stack_12_upos={stack[-1].upos + stack[-2].upos}'] = 1
-        feature_row[f'stack_12_lemma={stack[-1].lemma + stack[-2].lemma}'] = 1
+        feature_row[f'stack_12_lemma={stack[-1].lemma.lower() + stack[-2].lemma.lower()}'] = 1
         feature_row[f'stack_12_form={stack[-1].form.lower() + stack[-2].form.lower()}'] = 1
 
     if len(stack) >= 3:
@@ -357,7 +357,7 @@ class Classifier:
         label_vector = self.label_encoder.fit_transform([action.value for action in transition_labels])
 
         # logistic regression classifier
-        self.classifier = LogisticRegression(random_state=0, solver='lbfgs', penalty='l2', class_weight='balanced', max_iter=100, multi_class='multinomial')
+        self.classifier = LogisticRegression(solver='lbfgs', penalty='l2', max_iter=200, multi_class='multinomial')
 
         # train model
         self.classifier.fit(X=feature_matrix, y=label_vector)
