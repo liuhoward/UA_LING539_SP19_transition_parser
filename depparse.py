@@ -192,25 +192,17 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row[f'stack_1_upos={stack[-1].upos}'] = 1
         feature_row[f'stack_1_lemma={stack[-1].lemma.lower()}'] = 1
         feature_row[f'stack_1_form={stack[-1].form.lower()}'] = 1
-        feature_row[f'stack_1_form_upos={stack[-1].form.lower() + stack[-1].upos}'] = 1
-        feature_row[f'stack_1_lemma_upos={stack[-1].lemma.lower() + stack[-1].upos}'] = 1
 
     if len(stack) >= 2:
         feature_row[f'stack_2_upos={stack[-2].upos}'] = 1
         feature_row[f'stack_2_lemma={stack[-2].lemma.lower()}'] = 1
         feature_row[f'stack_2_form={stack[-2].form.lower()}'] = 1
-        feature_row[f'stack_2_form_upos={stack[-2].form.lower() + stack[-2].upos}'] = 1
-        feature_row[f'stack_2_lemma_upos={stack[-2].lemma.lower() + stack[-2].upos}'] = 1
 
         feature_row[f'stack_12_upos={stack[-1].upos + stack[-2].upos}'] = 1
         feature_row[f'stack_12_lemma={stack[-1].lemma.lower() + stack[-2].lemma.lower()}'] = 1
         feature_row[f'stack_12_form={stack[-1].form.lower() + stack[-2].form.lower()}'] = 1
 
     if len(stack) >= 3:
-        feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
-        feature_row[f'stack_3_xpos={stack[-3].xpos}'] = 1
-        feature_row[f'stack_3_lemma={stack[-3].lemma.lower()}'] = 1
-        feature_row[f'stack_3_form={stack[-3].form.lower()}'] = 1
 
         feature_row[f'stack_123_upos={stack[-1].upos + stack[-2].upos + stack[-3].upos}'] = 1
         feature_row[f'stack_123_lemma={stack[-1].lemma.lower() + stack[-2].lemma.lower() + stack[-3].lemma.lower()}'] = 1
@@ -218,7 +210,6 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
 
     if len(queue) >= 1:
         feature_row[f'queue_1_upos={queue[0].upos}'] = 1
-        feature_row[f'queue_1_xpos={queue[0].xpos}'] = 1
         feature_row[f'queue_1_lemma={queue[0].lemma.lower()}'] = 1
         feature_row[f'queue_1_form={queue[0].form.lower()}'] = 1
 
@@ -362,7 +353,7 @@ class Classifier:
         label_vector = self.label_encoder.fit_transform([action.value for action in transition_labels])
 
         # logistic regression classifier
-        self.classifier = LogisticRegression(solver='lbfgs', penalty='l2', tol=1e-3, class_weight='balanced',
+        self.classifier = LogisticRegression(solver='lbfgs', penalty='l2', class_weight='balanced',
                                              max_iter=100, multi_class='multinomial')
 
         # train model
