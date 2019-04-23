@@ -362,7 +362,8 @@ class Classifier:
         label_vector = self.label_encoder.fit_transform([action.value for action in transition_labels])
 
         # logistic regression classifier
-        self.classifier = LogisticRegression(solver='lbfgs', penalty='l2', tol=1e-3, max_iter=120, multi_class='multinomial')
+        self.classifier = LogisticRegression(solver='lbfgs', penalty='l2', tol=1e-3, class_weight='balanced',
+                                             max_iter=100, multi_class='multinomial')
 
         # train model
         self.classifier.fit(X=feature_matrix, y=label_vector)
