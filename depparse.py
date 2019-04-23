@@ -179,6 +179,13 @@ def parse(deps: Sequence[Dep],
 
 
 def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
+    """
+        given stack & queue, generate features.
+
+    :param stack: current stack
+    :param queue: queue for remaining words.
+    :return: a dict of features.
+    """
 
     feature_row = dict()
     if len(stack) >= 1:
@@ -186,15 +193,18 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row[f'stack_1_xpos={stack[-1].xpos}'] = 1
         feature_row[f'stack_1_lemma={stack[-1].lemma.lower()}'] = 1
         feature_row[f'stack_1_form={stack[-1].form.lower()}'] = 1
+        feature_row[f'stack_1_form_upos={stack[-1].form.lower() + stack[-1].upos}'] = 1
+        feature_row[f'stack_1_lemma_upos={stack[-1].lemma.lower() + stack[-1].upos}'] = 1
 
     if len(stack) >= 2:
         feature_row[f'stack_2_upos={stack[-2].upos}'] = 1
         feature_row[f'stack_2_xpos={stack[-2].xpos}'] = 1
         feature_row[f'stack_2_lemma={stack[-2].lemma.lower()}'] = 1
         feature_row[f'stack_2_form={stack[-2].form.lower()}'] = 1
-
-        feature_row[f'stack_left'] = 1 if stack[-2].head == stack[-1].id else 0
-        feature_row['stack_right'] = 1 if stack[-1].head == stack[-2].id else 0
+        feature_row[f'stack_2_form_upos={stack[-2].form.lower() + stack[-2].upos}'] = 1
+        feature_row[f'stack_12_upos={stack[-1].upos + stack[-2].upos}'] = 1
+        feature_row[f'stack_12_lemma={stack[-1].lemma + stack[-2].lemma}'] = 1
+        feature_row[f'stack_12_form={stack[-1].form.lower() + stack[-2].form.lower()}'] = 1
 
     if len(stack) >= 3:
         feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
