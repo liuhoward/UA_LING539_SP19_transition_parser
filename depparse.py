@@ -182,26 +182,14 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
 
     feature_row = dict()
     if len(stack) >= 1:
-        try:
-            feature_row[f'stack_1_upos={stack[-1].upos}'] = 1
-        except:
-            pass
-        try:
-            feature_row[f'stack_1_xpos={stack[-1].xpos}'] = 1
-        except:
-            pass
+        feature_row[f'stack_1_upos={stack[-1].upos}'] = 1
+        feature_row[f'stack_1_xpos={stack[-1].xpos}'] = 1
         feature_row[f'stack_1_lemma={stack[-1].lemma}'] = 1
         feature_row[f'stack_1_form={stack[-1].form}'] = 1
 
     if len(stack) >= 2:
-        try:
-            feature_row[f'stack_2_upos={stack[-2].upos}'] = 1
-        except:
-            pass
-        try:
-            feature_row[f'stack_2_xpos={stack[-2].xpos}'] = 1
-        except:
-            pass
+        feature_row[f'stack_2_upos={stack[-2].upos}'] = 1
+        feature_row[f'stack_2_xpos={stack[-2].xpos}'] = 1
         feature_row[f'stack_2_lemma={stack[-2].lemma}'] = 1
         feature_row[f'stack_2_form={stack[-2].form}'] = 1
 
@@ -209,26 +197,14 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row['stack_right'] = 1 if stack[-1].head == stack[-2].id else 0
 
     if len(stack) >= 3:
-        try:
-            feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
-        except:
-            pass
-        try:
-            feature_row[f'stack_3_xpos={stack[-3].xpos}'] = 1
-        except:
-            pass
+        feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
+        feature_row[f'stack_3_xpos={stack[-3].xpos}'] = 1
         feature_row[f'stack_3_lemma={stack[-3].lemma}'] = 1
         feature_row[f'stack_3_form={stack[-3].form}'] = 1
 
     if len(queue) >= 1:
-        try:
-            feature_row[f'queue_1_upos={queue[0].upos}'] = 1
-        except:
-            pass
-        try:
-            feature_row[f'queue_1_xpos={queue[0].xpos}'] = 1
-        except:
-            pass
+        feature_row[f'queue_1_upos={queue[0].upos}'] = 1
+        feature_row[f'queue_1_xpos={queue[0].xpos}'] = 1
         feature_row[f'queue_1_lemma={queue[0].lemma}'] = 1
         feature_row[f'queue_1_form={queue[0].form}'] = 1
 
