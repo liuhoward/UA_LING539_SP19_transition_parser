@@ -193,20 +193,20 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row[f'stack_1_xpos={stack[-1].xpos}'] = 1
         feature_row[f'stack_1_lemma={stack[-1].lemma.lower()}'] = 1
         feature_row[f'stack_1_form={stack[-1].form.lower()}'] = 1
-        feature_row[f'stack_1_form_upos={stack[-1].form.lower()}##{stack[-1].upos}'] = 1
-        feature_row[f'stack_1_lemma_upos={stack[-1].lemma.lower()}##{stack[-1].upos}'] = 1
+        feature_row[f'stack_1_form_upos={stack[-1].form.lower() + stack[-1].upos}'] = 1
+        feature_row[f'stack_1_lemma_upos={stack[-1].lemma.lower() + stack[-1].upos}'] = 1
 
     if len(stack) >= 2:
         feature_row[f'stack_2_upos={stack[-2].upos}'] = 1
         feature_row[f'stack_2_xpos={stack[-2].xpos}'] = 1
         feature_row[f'stack_2_lemma={stack[-2].lemma.lower()}'] = 1
         feature_row[f'stack_2_form={stack[-2].form.lower()}'] = 1
-        feature_row[f'stack_2_form_upos={stack[-2].form.lower()}##{stack[-2].upos}'] = 1
-        feature_row[f'stack_2_lemma_upos={stack[-2].lemma.lower()}##{stack[-2].upos}'] = 1
+        feature_row[f'stack_2_form_upos={stack[-2].form.lower() + stack[-2].upos}'] = 1
+        feature_row[f'stack_2_lemma_upos={stack[-2].lemma.lower() + stack[-2].upos}'] = 1
 
-        feature_row[f'stack_12_upos={stack[-1].upos}##{stack[-2].upos}'] = 1
-        feature_row[f'stack_12_lemma={stack[-1].lemma}##{stack[-2].lemma}'] = 1
-        feature_row[f'stack_12_form={stack[-1].form.lower()}##{stack[-2].form.lower()}'] = 1
+        feature_row[f'stack_12_upos={stack[-1].upos + stack[-2].upos}'] = 1
+        feature_row[f'stack_12_lemma={stack[-1].lemma + stack[-2].lemma}'] = 1
+        feature_row[f'stack_12_form={stack[-1].form.lower() + stack[-2].form.lower()}'] = 1
 
     if len(stack) >= 3:
         feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
@@ -219,8 +219,8 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row[f'queue_1_xpos={queue[0].xpos}'] = 1
         feature_row[f'queue_1_lemma={queue[0].lemma.lower()}'] = 1
         feature_row[f'queue_1_form={queue[0].form.lower()}'] = 1
-        feature_row[f'queue_1_form_upos={queue[-1].form.lower()}##{queue[-1].upos}'] = 1
-        feature_row[f'queue_1_lemma_upos={queue[-1].lemma.lower()}##{queue[-1].upos}'] = 1
+        feature_row[f'queue_1_form_upos={queue[-1].form.lower() + queue[-1].upos}'] = 1
+        feature_row[f'queue_1_lemma_upos={queue[-1].lemma.lower() + queue[-1].upos}'] = 1
         
     feature_row['stack_size'] = len(stack)
     feature_row['queue_size'] = len(queue)
