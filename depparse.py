@@ -208,9 +208,6 @@ def get_feature_row(stack: Sequence[Dep], queue: Sequence[Dep]) -> dict:
         feature_row[f'stack_12_lemma={stack[-1].lemma.lower() + stack[-2].lemma.lower()}'] = 1
         feature_row[f'stack_12_form={stack[-1].form.lower() + stack[-2].form.lower()}'] = 1
 
-        feature_row[f'stack_1212_form_upos={stack[-1].form.lower() + stack[-2].form.lower() + stack[-1].upos + stack[-2].upos}'] = 1
-        feature_row[f'stack_1212_lemma_upos={stack[-1].lemma.lower() + stack[-2].lemma.lower() + stack[-1].upos + stack[-2].upos}'] = 1
-
     if len(stack) >= 3:
         feature_row[f'stack_3_upos={stack[-3].upos}'] = 1
         feature_row[f'stack_3_xpos={stack[-3].xpos}'] = 1
